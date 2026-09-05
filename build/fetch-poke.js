@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const OUT = path.join(__dirname, 'pokedata.js');
-const N = 151;
+const N = 251;
 
 const jname = (names) => {
   const h = names.find(n => n.language.name === 'ja-Hrkt');

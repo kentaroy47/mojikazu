@@ -455,7 +455,7 @@ const TCOL = {
   'ノーマル':'#7F857D','ほのお':'#DE5B33','みず':'#3A80D4','でんき':'#B8900A','くさ':'#3E9E4E',
   'こおり':'#2F97A6','かくとう':'#B8422F','どく':'#94499E','じめん':'#A2742A','ひこう':'#5B76CE',
   'エスパー':'#D33F69','むし':'#6D9A1E','いわ':'#8A6740','ゴースト':'#6A50A0','ドラゴン':'#5A48BA',
-  'はがね':'#5A7A87','フェアリー':'#CC5A93',
+  'はがね':'#5A7A87','フェアリー':'#CC5A93','あく':'#4E4557',
 };
 const tcol = t => TCOL[t] || '#7F857D';
 const dexNo = id => String(id).padStart(3, '0');
@@ -494,9 +494,12 @@ function rollEncounter(used) {
     const free = LEGEND.filter(p => !used.has(p.i));
     if (free.length) { const l = pick(free); return { p:l, baseId:l.i, shiny: rnd(SHINY_ODDS) === 0, legend:true }; }
   }
-  let base = null;
   const free = BASES.filter(p => !used.has(p.i));
-  base = free.length ? pick(free) : pick(BASES);
+  const pool = free.length ? free : BASES;
+  // はんぶんの かくりつで「もう すこしで しんかする」なかまを えらぶ。
+  // やせいが 111しゅるい あるので、これが ないと いつまでも しんかしない。
+  const soon = pool.filter(p => { const c = S.chain[p.i] || 0; return c > 0 && c < 6; });
+  const base = (soon.length && rnd(2)) ? pick(soon) : pick(pool);
   return { p: formFor(base), baseId: base.i, shiny: rnd(SHINY_ODDS) === 0, legend:false };
 }
 
