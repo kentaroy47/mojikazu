@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const OUT = path.join(__dirname, 'pokedata.js');
-const N = 251;
+const N = 1025;
 
 const jname = (names) => {
   const h = names.find(n => n.language.name === 'ja-Hrkt');
@@ -35,10 +35,10 @@ const getB64 = async (u) => {
   const ids = Array.from({ length: N }, (_, i) => i + 1);
 
   console.error('1/5 pokemon ...');
-  const mons = await pool(ids, 8, id => getJSON(`https://pokeapi.co/api/v2/pokemon/${id}`));
+  const mons = await pool(ids, 12, id => getJSON(`https://pokeapi.co/api/v2/pokemon/${id}`));
 
   console.error('2/5 species ...');
-  const spec = await pool(ids, 8, id => getJSON(`https://pokeapi.co/api/v2/pokemon-species/${id}`));
+  const spec = await pool(ids, 12, id => getJSON(`https://pokeapi.co/api/v2/pokemon-species/${id}`));
 
   console.error('3/5 types ...');
   const typeSlugs = [...new Set(mons.flatMap(m => m.types.map(t => t.type.name)))];
@@ -69,7 +69,7 @@ const getB64 = async (u) => {
     (m.sprites && m.sprites.front_default) || null,
     (m.sprites && m.sprites.front_shiny) || null,
   ]);
-  const sprites = await pool(sprUrls, 8, async ([a, b]) => [await getB64(a), await getB64(b)]);
+  const sprites = await pool(sprUrls, 12, async ([a, b]) => [await getB64(a), await getB64(b)]);
 
   const rows = ids.map((id, i) => {
     const m = mons[i], s = spec[i];

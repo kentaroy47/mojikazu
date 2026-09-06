@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#168d9c">
+<meta name="description" content="ピカチュウと、ちいさなしま。3つのおねがいをかなえる、こくごとさんすうのミニぼうけん。">
+<title>ピカチュウと ちいさなしま</title>
+<style>
+:root{color-scheme:light;--ink:#183e48;--teal:#087d83;--yellow:#ffe477;--paper:#fffef7;--muted:#52717a}
+*{box-sizing:border-box}body{margin:0;background:#e7f4f2;color:var(--ink);font-family:'Hiragino Maru Gothic ProN','Yu Gothic',Meiryo,sans-serif;font-weight:700}button{font:inherit;cursor:pointer;color:inherit;touch-action:manipulation}button:disabled{cursor:default}button:focus-visible,a:focus-visible{outline:4px solid #da5c21;outline-offset:5px}[hidden]{display:none!important}
+.shell{max-width:1120px;margin:auto;padding:24px 30px 36px}.masthead{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:12px}.brand-icon{background:var(--yellow);border-radius:17px;padding:9px 12px;font-size:25px;transform:rotate(-7deg)}h1{font-size:clamp(19px,3vw,27px);margin:0;letter-spacing:.04em}.eyebrow{font-size:12px;letter-spacing:.18em;color:var(--teal);margin:0 0 4px}.day{font-size:14px;border:1px solid #afcfc8;padding:10px 15px;border-radius:30px;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:24px;align-items:start}
+.island-panel{overflow:hidden;border-radius:28px;background:#168d9c;box-shadow:0 10px 28px #23595718}.scene-head{display:flex;justify-content:space-between;align-items:center;padding:20px 22px 0;color:white}.scene-head h2{font-size:18px;margin:0}.scene-head span{font-size:14px;color:#d1f5f0}.scene{position:relative;aspect-ratio:1.22;isolation:isolate}canvas{width:100%;height:100%;display:block}.buddy{position:absolute;left:47%;top:43%;width:23%;aspect-ratio:1;border:0;background:none;padding:0;transform:translate(-50%,-50%)}.buddy img{width:100%;height:100%;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 7px 0 #31532d30);animation:bob 3s ease-in-out infinite}.buddy:hover img{filter:drop-shadow(0 8px 0 #31532d40) brightness(1.08)}.spot{position:absolute;background:var(--paper);border:0;border-radius:24px;box-shadow:0 4px 0 #0c65724d;padding:10px 14px;font-size:14px;white-space:nowrap;transform:translateX(-50%)}.spot[data-index="0"]{left:27%;top:33%}.spot[data-index="1"]{left:72%;top:40%}.spot[data-index="2"]{left:53%;top:76%}.spot:disabled{background:#e2eee4;color:#4c6b65}.spot.current{box-shadow:0 0 0 4px #ffe477,0 6px 0 #0c65724d}.bubble{background:#f6fff7;margin:0 18px 18px;padding:16px 18px;border-radius:18px;position:relative;font-size:16px;min-height:77px;line-height:1.6}.bubble:before{content:'';position:absolute;top:-9px;left:44%;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:10px solid #f6fff7}.bubble b{display:block;color:#087d83;font-size:13px;margin-bottom:2px}.side{display:flex;flex-direction:column;gap:18px}.progress{display:flex;align-items:center;justify-content:space-between;font-size:14px}.dots{display:flex;gap:8px}.dot{height:10px;width:32px;border-radius:8px;background:#c9ded9}.dot.done{background:var(--teal)}.dot.active{background:#efbb38}
+.card{background:var(--paper);border:1px solid #d5e6e2;border-radius:24px;padding:25px;box-shadow:0 6px 0 #cddfd94d}.card-tag{font-size:14px;color:var(--teal);letter-spacing:.06em;margin:0 0 12px}.card h2{font-size:25px;line-height:1.5;margin:0 0 12px}.desc{font-weight:500;font-size:16px;line-height:1.8;margin:0 0 20px;white-space:pre-line}.reward{padding:14px 16px;border-radius:14px;background:#edf4e3;display:flex;gap:12px;align-items:center;font-size:14px;margin-bottom:22px}.reward span:first-child{font-size:28px}.primary,.secondary{border:0;min-height:54px;border-radius:16px;padding:13px 18px;width:100%;font-size:17px}.primary{background:var(--teal);color:#fff;box-shadow:0 4px 0 #005e64}.primary:hover{background:#096e74}.primary:active{transform:translateY(2px);box-shadow:0 2px 0 #005e64}.secondary{background:#e8f2ef;color:var(--ink)}.hint-line{font-size:14px;color:var(--muted);text-align:center;line-height:1.6;margin:15px 0 0}.q-progress{display:flex;justify-content:space-between;font-size:14px;color:var(--teal);margin-bottom:20px}.q-art{font-size:27px;background:#eef5e8;border-radius:15px;text-align:center;padding:16px 8px;letter-spacing:4px;line-height:1.7;margin-bottom:20px;overflow-wrap:anywhere}.question{font-size:23px!important;white-space:pre-line}.answers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:22px}.answer{font-size:22px;min-height:65px;background:white;border:2px solid #c7dbd7;border-radius:16px;box-shadow:0 4px 0 #d3e2dc;padding:10px 2px}.answer:hover:not(:disabled){border-color:var(--teal);background:#ecf8f0}.answer.correct{background:#ddf3c9;border-color:#4b8b3a;color:#2e6520}.answer.wrong{background:#fff2d0;border-color:#d5a43e}.feedback{font-size:16px;line-height:1.7;margin:18px 0;color:#365b42;white-space:pre-line}.feedback:empty{display:none}.small-btn{background:none;border:0;text-decoration:underline;color:var(--muted);font-size:14px;padding:12px;min-height:44px}.notes{font-size:14px;line-height:1.7;color:var(--muted);margin:0;padding:0 6px}.success-icon{font-size:45px;margin-bottom:12px}.footer{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:12px;margin-top:22px}.footer p{margin:0;line-height:1.6}.footer details{max-width:500px}.footer summary{cursor:pointer;min-height:30px}.footer a{color:inherit}.end-actions{display:flex;gap:10px;margin-top:12px}.celebrate .buddy img{animation:cheer .6s ease-in-out 3}.pill{display:inline-block;border-radius:20px;background:#ffe477;color:#5f501a;padding:5px 12px;font-size:14px;margin-bottom:16px}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes cheer{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(-8deg)}}
+@media(max-width:760px){.shell{padding:18px 16px 25px}.layout{grid-template-columns:1fr;gap:20px}.scene{aspect-ratio:1.6}.scene-head{padding:16px 18px 0}.scene-head h2{font-size:15px}.island-panel{border-radius:23px}.card{padding:22px}.masthead{margin-bottom:16px}.day{font-size:12px;padding:8px 10px}.brand-icon{display:none}.bubble{min-height:0;font-size:15px;padding:12px 15px}.side{gap:12px}.spot{font-size:14px;padding:8px 10px}.footer{align-items:flex-start}.q-art{font-size:25px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <a id="backToDrill" class="small-btn" style="display:inline-block;margin:0 0 8px;padding-left:0" href="./index.html" hidden>← もじカズに もどる</a>
+  <header class="masthead"><div class="brand"><span class="brand-icon" aria-hidden="true">⚡</span><div><p class="eyebrow">ポケモンと くらす</p><h1>ちいさなしま</h1></div></div><span class="day">はじまりの いちにち</span></header>
+  <div class="layout">
+    <section class="island-panel" aria-label="ピカチュウのしま"><div class="scene-head"><h2>きみと ピカチュウのしま</h2><span>☀ はれ</span></div>
+      <div class="scene" id="scene"><canvas id="island" width="800" height="650" role="img" aria-label="うみに うかぶ ちいさなしま"></canvas>
+        <button class="buddy" id="buddy" aria-label="ピカチュウに はなしかける"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgBAMAAAAQtmoLAAAAKlBMVEUAAAAAAAApKSlBQUpiMQhzc4OcUgDFIBjelADmWkH2vSD25lL/9qT////Vai+KAAAAAXRSTlMAQObYZgAAAdlJREFUWMPtlsFqwkAQhjclhB6ztRRReqiHXnoSbz0piLX2JcwliD6A0JsgEuoDlNJTQKzsnkJpSDN9A3PpG3U2ST12J4dCKftjNML/MTObndkwZmRkZPTX5Vb0Wxe/DrQq5nRSHehWBK4PQKtFAWpiU9wctTodygI0SsCZQqfTJgK+P3ZmgAClfltsJ9k+Qf8bKQACQZZlgHptqwC+lhh+ZNleAVz5HRjrAEwGUi4Tr/wX61JaSMzm8wrygo9BD5wjENVKYI3hNDnZbRiqlHJfAHrAuVQmeH9eqooJwB3AABN5egyL+rVF3MrldDtJ5/OwDKADbkSuHJAVgJf7kE1FTmg2lCNKheoOCa7froU2OSo5owLSHeG33s+aJQCuTfKzJhQBsNjRlpEAJHZSrY4tKBNkHeNSqk3XZXUKYEFSApH18D1BfgYAmwZ7CKJhsOsRgHUB7CAMgj5lGM9AIfgJ6wtGA2Ko45UK7lPmUjPGmRThlQr3zCMAM/BxhXz1MLhPAKyiBwCkEH2PkJIlCn+apiKklGDlPQBCYoSQdKBMxUG0o6hx8O9oh53VEAHnqndIj42x/kotpjWYrGgB7Djp5c6R8GgR+Gn5G0cVXwl41bcUIyMjo/+qLw92FGczGN4XAAAAAElFTkSuQmCC" alt="ピカチュウ" width="96" height="96"></button>
+        <button class="spot" data-index="0">🍎 きのみ</button><button class="spot" data-index="1">🌼 はなばたけ</button><button class="spot" data-index="2">🪵 はし</button>
+      </div>
+      <div class="bubble"><b>ピカチュウ</b><span id="speech" aria-live="polite">いっしょに すてきな しまに しよう！</span></div>
+    </section>
+    <section class="side" aria-label="おねがい"><div class="progress"><span id="progressText">おねがい 0 / 3</span><div class="dots" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+      <div class="card" id="card"></div><p class="notes" id="saveNote">じぶんの ペースで だいじょうぶ。<br>とちゅうで やめても つづきから あそべるよ。</p>
+    </section>
+  </div>
+  <footer class="footer"><p>ちいさな おためしぼうけん · おねがい 3つ</p><details><summary>この あそびについて</summary><p>家庭学習用の非営利の試作です。ポケモンの画像は <a href="https://pokeapi.co/">PokeAPI</a> より。ポケモンは株式会社ポケモン・任天堂・ゲームフリーク・クリーチャーズに帰属します。進み具合はこのブラウザーに保存されます。</p></details></footer>
+</main>
+<script>'use strict';
+(() => {
+  const KEY = 'pikachu-island-prototype-v1';
+  const quests = [
+    { title:'きのみを あつめよう', icon:'🍎', subject:'さんすう',
+      intro:'ピカチュウが おなかを すかせているよ。\nきのみを かぞえて、おやつに しよう。',
+      reward:'きのみの かごが できるよ', done:'おやつの じかん！',
+      message:'きのみを あつめてくれて ありがとう！ いっしょに たべよう。',
+      questions:[
+        {text:'きのみは ぜんぶで\nなんこ ある？',art:'🍎 🍎 🍎',choices:['2','3','4'],answer:'3',hint:'ひだりから「1、2、3」と かぞえてみよう。',praise:'3こ みつけたね！'},
+        {text:'3こ ひろって、あと 2こ。\nあわせて なんこ？',art:'🍎🍎🍎 ＋ 🍎🍎',choices:['4','6','5'],answer:'5',hint:'3この つづきから「4、5」と かぞえてみよう。',praise:'5こに なったね！'},
+        {text:'5この うち、2こ たべたよ。\nのこりは なんこ？',art:'5 − 2 = ？',choices:['3','7','2'],answer:'3',hint:'ゆびを 5ほん だして、2ほん おってみよう。',praise:'3こ のこったね。おやつの じゅんびが できた！'}
+      ]
+    },
+    { title:'はなを さかせよう', icon:'🌼', subject:'こくご',
+      intro:'おはなの たねを みつけたよ。\nことばを つないで、はなばたけを つくろう。',
+      reward:'しまに はなばたけが できるよ', done:'おはなが さいた！',
+      message:'わあ、きれい！ きみと そだてた はなばたけだね。',
+      questions:[
+        {text:'「はな」の つづきは？\nしりとりを しよう。',art:'はな → ？',choices:['さかな','りす','なす'],answer:'なす',hint:'「はな」の おわりは「な」。「な」で はじまる ことばは？',praise:'はな → なす。つながったね！'},
+        {text:'ぴったりの もじは？\nはな □ みずを あげる。',art:'🌼 💧',choices:['を','に','で'],answer:'に',hint:'「だれに？ なにに？」と かんがえてみよう。はな「に」あげるよ。',praise:'はなに みずを あげたよ！'},
+        {text:'「ちいさい」の\nはんたいは どれ？',art:'🌱 → 🌻',choices:['おおきい','あかい','つめたい'],answer:'おおきい',hint:'ちいさい はなが ぐんぐん そだつと、どうなるかな？',praise:'おおきい はなに そだったね！'}
+      ]
+    },
+    { title:'はしを つくろう', icon:'🪵', subject:'さんすう',
+      intro:'むこうの こじまへ いきたいな。\nいたを ならべて、はしを つくろう！',
+      reward:'こじまへ わたれるように なるよ', done:'はしが つながった！',
+      message:'やったあ！ むこうまで いけるね。きみと いっしょで うれしいな！',
+      questions:[
+        {text:'いたが 2まいと 2まい。\nあわせて なんまい？',art:'🪵🪵 ＋ 🪵🪵',choices:['3','4','5'],answer:'4',hint:'「1、2」と「3、4」。ぜんぶ かぞえてみよう。',praise:'4まい そろったね！'},
+        {text:'6まい ほしいな。いまは 4まい。\nあと なんまい いる？',art:'4 ＋ ？ = 6',choices:['2','3','1'],answer:'2',hint:'4から 6まで「5、6」。あと いくつ ふえたかな？',praise:'あと 2まいで そろうね！'},
+        {text:'いたを じゅんばんに ならべよう。\n1、2、□、4、5、6',art:'1 → 2 → ？ → 4',choices:['5','2','3'],answer:'3',hint:'「いち、に、さん、し」と こえに だしてみよう。',praise:'じゅんばんに ならんだ！ はしの できあがり！'}
+      ]
+    }
+  ];
+  const blank = () => ({version:1,completed:0,step:0,mode:'intro',solved:false});
+  function normalize(raw) {
+    if (!raw || raw.version !== 1 || !Number.isInteger(raw.completed) || raw.completed < 0 || raw.completed > 3 || !Number.isInteger(raw.step) || raw.step < 0 || raw.step > 2 || !['intro','play','reward','end'].includes(raw.mode) || typeof raw.solved !== 'boolean') return blank();
+    if (raw.completed === 3) return {...blank(),completed:3,mode:raw.mode === 'reward' ? 'reward' : 'end'};
+    if (raw.mode === 'end' || (raw.mode === 'reward' && raw.completed === 0)) return blank();
+    return {version:1,completed:raw.completed,step:raw.mode === 'reward' ? 0 : raw.step,mode:raw.mode,solved:raw.mode === 'play' && raw.solved};
+  }
+  function transition(state, action, value) {
+    const s = {...state};
+    if (action === 'start' && s.mode === 'intro') s.mode = 'play';
+    else if (action === 'answer' && s.mode === 'play' && !s.solved && value === quests[s.completed].questions[s.step].answer) s.solved = true;
+    else if (action === 'next' && s.mode === 'play' && s.solved) {
+      s.solved = false;
+      if (s.step < 2) s.step++;
+      else { s.completed++; s.step=0; s.mode='reward'; }
+    } else if (action === 'continue' && s.mode === 'reward') s.mode = s.completed === 3 ? 'end' : 'intro';
+    else if (action === 'home' && s.mode === 'play' && !s.solved) s.mode='intro';
+    else if (action === 'restart' && s.mode === 'end') return blank();
+    return s;
+  }
+  if (typeof module !== 'undefined' && module.exports) module.exports={quests,blank,normalize,transition,KEY};
+  if (typeof document === 'undefined') return;
+  const $ = (s) => document.querySelector(s);
+  // The main app exports this page as island.html beside its own index.html.
+  $('#backToDrill').hidden = !location.pathname.endsWith('/island.html');
+  const card = $('#card');
+  let storageOK = true;
+  let state;
+  try {state=normalize(JSON.parse(localStorage.getItem(KEY)));} catch {state=blank();storageOK=false;}
+  let hint = '';
+  let wrong = null;
+  let talkCount = 0;
+  let confirmRestart = false;
+  function save() {
+    try {localStorage.setItem(KEY,JSON.stringify(state));storageOK=true;} catch {storageOK=false;}
+    $('#saveNote').innerHTML = storageOK ? 'じぶんの ペースで だいじょうぶ。<br>とちゅうで やめても つづきから あそべるよ。' : 'いまは きろくを ほぞんできないよ。<br>この ページを とじるまで あそべるよ。';
+  }
+  function act(action,value) {
+    state=transition(state,action,value);hint='';wrong=null;confirmRestart=false;save();render(true);
+  }
+  function say(text) {$('#speech').textContent=text;}
+  function answerQuestion(value) {
+    if(state.mode!=='play'||state.solved)throw new Error('いまは こたえる もんだいが ないよ。');
+    const q=quests[state.completed].questions[state.step];
+    if(!q.choices.includes(value))throw new Error('ひょうじされている こたえから えらんでね。');
+    if(value===q.answer)act('answer',value);
+    else {wrong=value;hint='おしい！ '+q.hint;render();say('だいじょうぶ。もういちど やってみよう！');card.querySelectorAll('.answer')[q.choices.indexOf(wrong)].focus({preventScroll:true});}
+  }
+  function focusCard() {
+    const heading=card.querySelector('h2');
+    heading.tabIndex=-1;heading.focus({preventScroll:true});
+    if(matchMedia('(max-width:760px)').matches) card.scrollIntoView({block:'nearest',behavior:'auto'});
+  }
+  function render(focus=false) {
+    $('#progressText').textContent=`おねがい ${state.completed} / 3`;
+    document.querySelectorAll('.dot').forEach((d,i)=>{d.className='dot'+(i<state.completed?' done':i===state.completed?' active':'');});
+    document.querySelectorAll('.spot').forEach((b,i)=>{
+      b.classList.toggle('current',i===state.completed && state.mode!=='reward');
+      b.disabled=i>state.completed || (i===state.completed && state.mode==='reward');
+      b.textContent=`${i<state.completed?'✓':quests[i].icon} ${['きのみ','はなばたけ','はし'][i]}`;
+      b.setAttribute('aria-label',`${quests[i].title}${i<state.completed?'・できた':b.disabled?'・あとで あそべる':''}`);
+    });
+    $('#scene').classList.toggle('celebrate',state.mode==='reward'||state.mode==='end');
+    drawIsland();
+    if (state.mode==='intro') {
+      const q=quests[state.completed];
+      say(state.completed===0?'いっしょに すてきな しまに しよう！':q.intro.split('\n')[0]);
+      card.innerHTML=`<p class="card-tag">おねがい ${state.completed+1} · ${q.subject}</p><h2>${q.title}</h2><p class="desc">${q.intro}</p><div class="reward"><span aria-hidden="true">${q.icon}</span><span>${q.reward}</span></div><button class="primary" id="start">${state.step?'つづきから あそぶ':'おてつだい する'} →</button><p class="hint-line">${state.step?`あと ${3-state.step}もん`:'3もんで できあがり'} · ゆっくりで いいよ</p>`;
+      $('#start').onclick=()=>act('start');
+    } else if (state.mode==='play') {
+      const quest=quests[state.completed],q=quest.questions[state.step];
+      say(state.solved?q.praise:'いっしょに かんがえよう。ゆっくりで いいよ！');
+      card.innerHTML=`<div class="q-progress"><span>${quest.icon} ${quest.title}</span><span>${state.step+1} / 3</span></div><div class="q-art" aria-hidden="true">${q.art}</div><h2 class="question">${q.text}</h2><div class="answers">${q.choices.map((c)=>`<button class="answer${state.solved&&c===q.answer?' correct':wrong===c?' wrong':''}" ${state.solved?'disabled':''}>${c}</button>`).join('')}</div><p class="feedback" role="status">${state.solved?'✓ '+q.praise:hint}</p>${state.solved?`<button class="primary" id="next">${state.step===2?'しまを みてみよう！':'つぎへ →'}</button>`:'<button class="small-btn" id="hint">ヒントを みる</button><button class="small-btn" id="home">ひとやすみ</button>'}`;
+      card.querySelectorAll('.answer').forEach((b)=>b.onclick=()=>answerQuestion(b.textContent));
+      if(state.solved)$('#next').onclick=()=>act('next');
+      else {$('#hint').onclick=()=>{hint=q.hint;card.querySelector('.feedback').textContent=hint;};$('#home').onclick=()=>act('home');}
+    } else if (state.mode==='reward') {
+      const q=quests[state.completed-1];say(q.message);
+      card.innerHTML=`<div class="success-icon" aria-hidden="true">${q.icon}</div><span class="pill">おねがい できた！</span><h2>${q.done}</h2><p class="desc">${q.message}</p><button class="primary" id="continue">${state.completed===3?'きょうの しまを みる':'つぎの おねがいへ →'}</button><p class="hint-line">しまの ${['きのみ','はなばたけ','はし'][state.completed-1]}を タップしてみてね</p>`;
+      $('#continue').onclick=()=>act('continue');
+      if(focus && matchMedia('(max-width:760px)').matches) $('#scene').scrollIntoView({block:'start',behavior:'auto'});
+    } else {
+      say('きみと つくった しま、だいすき！ いっしょに のんびり しよう。');
+      card.innerHTML=confirmRestart?'<h2>もういちど あそぶ？</h2><p class="desc">この しまを はじめの すがたに もどして、3つの おねがいを あそべるよ。</p><button class="primary" id="restart">はじめから あそぶ</button><div class="end-actions"><button class="secondary" id="cancel">いまの しまに もどる</button></div>':'<span class="pill">3つの おねがい できた！</span><h2>すてきな しまに\nなったね！</h2><p class="desc">おやつも、おはなも、はしも。\nぜんぶ きみと つくったんだよ。</p><div class="reward"><span aria-hidden="true">⚡</span><span>ピカチュウと なかよしに なった！</span></div><button class="primary" id="picnic">ピカチュウと ピクニック</button><button class="small-btn" id="again">もういちど あそぶ</button>';
+      if(confirmRestart){$('#restart').onclick=()=>act('restart');$('#cancel').onclick=()=>{confirmRestart=false;render(true);};}
+      else {$('#again').onclick=()=>{confirmRestart=true;render(true);};$('#picnic').onclick=()=>{say('いただきまーす！ おはなを みながら たべると、おいしいね！');moveBuddy(64,62);$('#picnic').textContent='いっしょに のんびり ☀';$('#scene').scrollIntoView({block:'center',behavior:'auto'});};}
+    }
+    if(focus && state.mode!=='reward')focusCard();
+    else if(focus)card.querySelector('.primary').focus({preventScroll:true});
+  }
+  function moveBuddy(x,y){$('#buddy').style.left=x+'%';$('#buddy').style.top=y+'%';}
+  $('#buddy').onclick=()=>{
+    const phrases=state.completed===3?['ピカピカ！ きみの しまが だいすき！','はなばたけで おひるね しようかな。','きょうは ありがとう。また いっしょに あそぼうね！']:['ピカ！ きてくれて うれしいな。','まちがえても だいじょうぶ。いっしょに やろう！','きみと いると たのしいな！'];
+    say(phrases[talkCount++%phrases.length]);
+  };
+  document.querySelectorAll('.spot').forEach((b)=>b.onclick=()=>{
+    const i=Number(b.dataset.index);
+    if(i<state.completed){say(quests[i].message);moveBuddy(...[[29,48],[69,57],[53,71]][i]);}
+    else if(i===state.completed && state.mode!=='reward'){card.scrollIntoView({block:'nearest',behavior:'auto'});focusCard();}
+  });
+  // The canvas is the game's map: terrain, unlocked places and bridge state.
+  function drawIsland(){
+    const canvas=$('#island'),ctx=canvas.getContext('2d');if(!ctx)return;
+    const W=800,H=650;ctx.clearRect(0,0,W,H);
+    const sea=ctx.createLinearGradient(0,0,0,H);sea.addColorStop(0,'#168d9c');sea.addColorStop(1,'#32b5b1');ctx.fillStyle=sea;ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='#b7fff03d';ctx.lineWidth=3;ctx.lineCap='round';
+    for(let i=0;i<22;i++){const x=(i*137+35)%W,y=(i*83+50)%H;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+12,y+7,x+24,y);ctx.stroke();}
+    function ellipse(x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
+    ellipse(405,348,296,185,'#9fead640');ellipse(405,343,280,171,'#b0ead280');
+    ellipse(405,329,259,153,'#d3ad69');ellipse(405,311,259,153,'#f8dda0');ellipse(405,290,238,139,'#84c75e');ellipse(404,283,222,128,'#98d66b');
+    ellipse(425,553,111,52,'#b0ead270');ellipse(425,540,91,42,'#d3ad69');ellipse(425,529,94,42,'#f8dda0');ellipse(425,516,77,31,'#98d66b');
+    for(let i=0;i<30;i++){let x=210+(i*79)%390,y=208+(i*37)%154;if(((x-405)/210)**2+((y-290)/120)**2<1){ctx.strokeStyle='#70b455';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-3,y-5);ctx.moveTo(x,y);ctx.lineTo(x+4,y-4);ctx.stroke();}}
+    function emoji(text,x,y,size=48){ctx.font=`${size}px "Segoe UI Emoji","Apple Color Emoji",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);}
+    emoji('🌳',230,196,83);emoji('🌳',284,170,75);emoji('🌳',575,239,70);emoji('🌴',582,338,58);
+    ellipse(554,342,52,24,state.completed>=2?'#73b754':'#b19c60');
+    if(state.completed>=2){for(const [x,y,e] of [[520,326,'🌼'],[553,315,'🌷'],[585,331,'🌼'],[538,350,'🌷'],[571,352,'🌼']])emoji(e,x,y,32);}
+    else {emoji('🌱',540,331,30);emoji('🌱',572,340,26);}
+    if(state.completed>=1){emoji('🧺',230,323,61);emoji('🍎',218,303,27);emoji('🍎',244,306,27);}
+    else {emoji('🍎',211,261,27);emoji('🍎',256,279,24);}
+    if(state.completed>=3){
+      ctx.fillStyle='#704f35';ctx.fillRect(383,410,9,109);ctx.fillRect(453,410,9,109);
+      for(let y=407;y<512;y+=14){ctx.fillStyle='#9a683d';ctx.fillRect(378,y+3,89,12);ctx.fillStyle='#e8b86c';ctx.fillRect(378,y,89,10);}
+      emoji('🚩',461,508,37);emoji('🧺',484,376,40);
+    } else {emoji('🪵',422,405,40);}
+    emoji('🐚',187,378,26);emoji('🐚',635,357,22);
+    canvas.setAttribute('aria-label',`うみに うかぶ ちいさなしま。${state.completed>=1?'きのみの かごが できた。':''}${state.completed>=2?'はなばたけに はなが さいた。':''}${state.completed>=3?'はしで こじまへ わたれる。':''}`);
+    moveBuddy(state.mode==='end'?53:47,state.mode==='end'?69:43);
+  }
+  save();render();
+  // Optional browser-standard interface; normal play never depends on it.
+  if(document.modelContext?.registerTool){
+    const lifecycle=new AbortController();
+    const snapshot=()=>({completed:state.completed,mode:state.mode,step:state.step,solved:state.solved,question:state.mode==='play'?{text:quests[state.completed].questions[state.step].text,choices:quests[state.completed].questions[state.step].choices}:null});
+    const emptySchema={type:'object',properties:{},additionalProperties:false};
+    const registrations=[
+      {name:'get_island_progress',description:'Read the current island progress and visible question.',inputSchema:emptySchema,annotations:{readOnlyHint:true},execute:()=>snapshot()},
+      {name:'advance_island_story',description:'Start the current request, advance after an answered question, or continue after a reward. Does not answer questions or restart.',inputSchema:emptySchema,annotations:{readOnlyHint:false},execute:()=>{const action=state.mode==='intro'?'start':state.mode==='reward'?'continue':state.mode==='play'&&state.solved?'next':null;if(!action)throw new Error('No story transition is available.');act(action);return snapshot();}},
+      {name:'answer_island_question',description:'Submit one of the visible answers. A wrong answer shows a hint; a correct answer unlocks the next step.',inputSchema:{type:'object',properties:{answer:{type:'string'}},required:['answer'],additionalProperties:false},annotations:{readOnlyHint:false},execute:(input)=>{if(!input||typeof input.answer!=='string'||Object.keys(input).some(k=>k!=='answer'))throw new Error('Expected one answer string.');answerQuestion(input.answer);return snapshot();}}
+    ];
+    for(const tool of registrations){try{Promise.resolve(document.modelContext.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}}
+    window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
+  }
+})();
+</script>
+</body>
+</html>

@@ -4,8 +4,17 @@
 //   -> icon.png       ホーム画面に追加したときの アイコン
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
+// 島の試作は独立したページ。ソースがある環境では一緒に再生成する。
+const islandBuild = path.join(ROOT, 'island-prototype', 'build.cjs');
+if (fs.existsSync(islandBuild)) {
+  execFileSync(process.execPath, [islandBuild], { stdio: 'inherit' });
+  fs.copyFileSync(path.join(ROOT, 'island-prototype', 'dist', 'index.html'), path.join(ROOT, 'island.html'));
+} else if (!fs.existsSync(path.join(ROOT, 'island.html'))) {
+  throw new Error('島の試作 island.html がありません。island-prototype を用意してください。');
+}
 const tpl = fs.readFileSync(path.join(ROOT, 'src', 'app.html'), 'utf8');
 const data = fs.readFileSync(path.join(__dirname, 'pokedata.js'), 'utf8').trim();
 

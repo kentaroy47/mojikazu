@@ -1,3 +1,9 @@
 node_modules/
 .DS_Store
 Thumbs.db
+
+# 島の試作は それじたいが べつの git リポジトリ。
+# 親に とりこむと gitlink に なって しまうので のぞく。
+# 公開に つかう island.html（ビルド成果物）だけ コミットする。
+island-prototype/
+*.tar.gz
