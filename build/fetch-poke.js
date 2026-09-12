@@ -47,6 +47,20 @@ const getB64 = async (u) => {
   typeSlugs.forEach((s, i) => { TYPE_JA[s] = jname(typeDocs[i].names) || s; });
   console.error('   types:', Object.entries(TYPE_JA).map(([k, v]) => `${k}=${v}`).join(' '));
 
+  // タイプ そうせい ひょう：TX[こうげきタイプ][ぼうぎょタイプ] = ばいりつ
+  // 1ばい の くみあわせは かかない（よみこみがわで 1 を きほんに する）
+  const TX = {};
+  typeSlugs.forEach((s, i) => {
+    const ja = TYPE_JA[s], dr = typeDocs[i].damage_relations, row = {};
+    const put = (list, mult) => list.forEach(x => { const n = TYPE_JA[x.name]; if (n) row[n] = mult; });
+    put(dr.double_damage_to, 2);
+    put(dr.half_damage_to, 0.5);
+    put(dr.no_damage_to, 0);
+    TX[ja] = row;
+  });
+  const nSuper = Object.values(TX).reduce((a, r) => a + Object.values(r).filter(v => v === 2).length, 0);
+  console.error(`   type chart: ${Object.keys(TX).length} types / ばつぐん ${nSuper} くみあわせ`);
+
   console.error('4/5 evolution chains ...');
   const chainUrls = [...new Set(spec.map(s => s.evolution_chain && s.evolution_chain.url).filter(Boolean))];
   const chains = await pool(chainUrls, 6, u => getJSON(u));
@@ -64,12 +78,28 @@ const getB64 = async (u) => {
     walk(c.chain, 0);
   }
 
+  // まえに とった スプライトが あれば つかいまわす（とりなおしは じかんが かかるため）
+  const cache = {};
+  try {
+    const old = fs.readFileSync(OUT, 'utf8');
+    const prev = eval(old + '; PK');
+    prev.forEach(r => { if (r.s) cache[r.i] = [r.s, r.y || null]; });
+    console.error(`   sprite cache: ${Object.keys(cache).length} 件`);
+  } catch (e) { /* キャッシュ なし */ }
+
   console.error('5/5 sprites ...');
-  const sprUrls = mons.map(m => [
+  const sprUrls = mons.map((m, k) => [
     (m.sprites && m.sprites.front_default) || null,
     (m.sprites && m.sprites.front_shiny) || null,
+    ids[k],
   ]);
-  const sprites = await pool(sprUrls, 12, async ([a, b]) => [await getB64(a), await getB64(b)]);
+  let fetched = 0;
+  const sprites = await pool(sprUrls, 12, async ([a, b, id]) => {
+    if (cache[id]) return cache[id];
+    fetched++;
+    return [await getB64(a), await getB64(b)];
+  });
+  console.error(`   ${fetched} 件を あらたに ダウンロード`);
 
   const rows = ids.map((id, i) => {
     const m = mons[i], s = spec[i];
@@ -81,6 +111,8 @@ const getB64 = async (u) => {
       e: evolvesTo[id] || null,
       st: stageOf[id] || 0,
       L: (s.is_legendary || s.is_mythical) ? 1 : 0,
+      // バトルの つよさ：しゅぞくちの ごうけい（190〜720 くらい）
+      bs: m.stats.reduce((a, x) => a + x.base_stat, 0),
       s: png,
       y: shiny,
     };
@@ -95,7 +127,10 @@ const getB64 = async (u) => {
                 '/ legendary:', rows.filter(r => r.L).length,
                 '/ with evolution:', rows.filter(r => r.e).length);
 
-  fs.writeFileSync(OUT, 'const PK=' + JSON.stringify(rows) + ';\n');
+  const bsv = rows.map(r => r.bs).sort((a, b) => a - b);
+  console.error(`しゅぞくち: さいしょう ${bsv[0]} / まんなか ${bsv[Math.floor(bsv.length / 2)]} / さいだい ${bsv[bsv.length - 1]}`);
+
+  fs.writeFileSync(OUT, 'const PK=' + JSON.stringify(rows) + ';\nconst TX=' + JSON.stringify(TX) + ';\n');
   console.error('written', OUT, (fs.statSync(OUT).size / 1048576).toFixed(2), 'MB');
-  console.error('sample:', JSON.stringify(rows.slice(0, 3).map(r => ({ i: r.i, n: r.n, t: r.t, e: r.e, st: r.st }))));
+  console.error('sample:', JSON.stringify(rows.slice(0, 3).map(r => ({ i: r.i, n: r.n, t: r.t, bs: r.bs }))));
 })();
