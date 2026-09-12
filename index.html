@@ -1681,7 +1681,7 @@ function renderSet() {
    10. イベント
    --------------------------------------------------------- */
 document.addEventListener('click', ev => {
-  const t = ev.target.closest('[data-scr],[data-go],[data-lv],[data-c],[data-d],[data-len],[data-hab],[data-gen],[data-mon],[data-close],[data-buddy],[data-cry]');
+  const t = ev.target.closest('[data-scr],[data-go],[data-lv],[data-c],[data-d],[data-len],[data-hab],[data-gen],[data-mon],[data-close],[data-buddy],[data-cry],[data-gym],[data-pick]');
   if (!t) {
     if (ev.target.id === 'sheet') $('#sheet').hidden = true;
     return;

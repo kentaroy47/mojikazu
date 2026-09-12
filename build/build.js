@@ -21,6 +21,31 @@ const data = fs.readFileSync(path.join(__dirname, 'pokedata.js'), 'utf8').trim()
 if (!tpl.includes('/*__PK__*/')) { console.error('テンプレートに /*__PK__*/ がありません'); process.exit(1); }
 const fragment = tpl.replace('/*__PK__*/', () => data);
 
+// --- ボタンの はいせん チェック ---
+// クリックは いちかしょの ハンドラで うけて closest() で ふりわける。
+// t.dataset.foo の ぶんきを かいたのに closest() の セレクタに
+// [data-foo] を たしわすれると、その ボタンは むはんのうに なる。
+// じっさいに いちど やらかしたので、ビルドで とめる。
+{
+  const m = tpl.match(/ev\.target\.closest\('([^']+)'\)/);
+  if (!m) { console.error('closest() の セレクタが みつかりません'); process.exit(1); }
+  const inSelector = new Set([...m[1].matchAll(/\[data-([a-z-]+)\]/g)].map(x => x[1]));
+  const branched = new Set([...tpl.matchAll(/\bt\.dataset\.([a-zA-Z]+)/g)]
+    .map(x => x[1].replace(/[A-Z]/g, c => '-' + c.toLowerCase())));
+  const missing = [...branched].filter(k => !inSelector.has(k));
+  if (missing.length) {
+    console.error('ビルド ちゅうし: closest() に [data-' + missing.join('] [data-') + '] が ありません。');
+    console.error('  その ボタンを おしても なにも おきません。');
+    process.exit(1);
+  }
+  // HTML に ある data-* に ハンドラが あるかも みておく（けいこくだけ）
+  const inHtml = new Set([...tpl.matchAll(/\sdata-([a-z-]+)=/g)].map(x => x[1])
+    .filter(k => !['theme'].includes(k)));
+  const orphan = [...inHtml].filter(k => !branched.has(k) && !inSelector.has(k));
+  if (orphan.length) console.warn('けいこく: data-' + orphan.join(', data-') + ' に ハンドラが ありません');
+  console.log(`ボタンの はいせん: ${branched.size} しゅるい OK`);
+}
+
 // --- Artifact 用（そのままフラグメント） ---
 fs.writeFileSync(path.join(ROOT, 'artifact.html'), fragment);
 
