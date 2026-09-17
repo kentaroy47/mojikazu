@@ -339,7 +339,8 @@ img.spr{width:100%;height:100%;object-fit:contain;display:block;image-rendering:
 
 /* ---------- ジム と バトル ---------- */
 .badgebar{display:flex;gap:4px;justify-content:center;margin-top:3px}
-.bg-dot{width:13px;height:13px;border-radius:3px;background:var(--sunk);border:2px solid var(--line2);transform:rotate(45deg)}
+.bg-dot{width:10px;height:10px;border-radius:2px;background:var(--sunk);border:2px solid var(--line2);transform:rotate(45deg)}
+.badgebar{flex-wrap:wrap;gap:5px 4px}
 .gym-list{display:flex;flex-direction:column;gap:9px}
 .gym{
   background:var(--surface);border:3px solid var(--line);border-radius:var(--r-m);
@@ -545,6 +546,7 @@ img.spr{width:100%;height:100%;object-fit:contain;display:block;image-rendering:
     <div class="log-body">
       <div class="set-list">
         <div class="set"><div class="lb">おと<small>せいかいの おとが なる</small></div><button class="sw" id="swSound" aria-pressed="true" aria-label="おと"></button></div>
+        <div class="set"><div class="lb">やさしい（★）を かくす<small>かんたん すぎる ときは ★★から えらべるように</small></div><button class="sw" id="swHideEasy" aria-pressed="false" aria-label="やさしいを かくす"></button></div>
         <div class="set"><div class="lb">1かいで であう かず<small>1たいに つき せいかい 5かい</small></div>
           <div style="display:flex;gap:6px" id="lenRow">
             <button class="mini" style="min-width:52px;padding:9px 4px" data-len="3">3たい</button>
@@ -646,6 +648,7 @@ const TCOL = {
   'こおり':'#2F97A6','かくとう':'#B8422F','どく':'#94499E','じめん':'#A2742A','ひこう':'#5B76CE',
   'エスパー':'#D33F69','むし':'#6D9A1E','いわ':'#8A6740','ゴースト':'#6A50A0','ドラゴン':'#5A48BA',
   'はがね':'#5A7A87','フェアリー':'#CC5A93','あく':'#4E4557',
+  'いろいろ':'#C08A17',
 };
 const tcol = t => TCOL[t] || '#7F857D';
 const dexNo = id => String(id).padStart(4, '0').slice(-4).replace(/^0/, '');
@@ -1151,7 +1154,7 @@ const LS_KEY = 'mojikazu.poke.v1';
 const blank = () => ({ v:3, updatedAt:0, lv:1, area:'mix', habitat:'any',
   mons:{}, chain:{}, shiny:{}, days:[], runs:[], kinds:{},
   buddy:null, bond:{}, egg:{ step:0, got:0 }, pieces:0, badges:[], team:[], gymWins:{},
-  sound:true, rounds:4 });
+  sound:true, rounds:4, hideEasy:false });
 let S = blank();
 let dbDoc = null, syncState = '';
 
@@ -1166,6 +1169,7 @@ function load() {
   if (!S.gymWins || typeof S.gymWins !== 'object') S.gymWins = {};
   // むかしの セーブは バッジ＝1かい かった あつかいに する
   S.badges.forEach(i => { if (!S.gymWins[i]) S.gymWins[i] = 1; });
+  if (S.hideEasy && S.lv < 2) S.lv = 2;
 }
 let pushT = null;
 function save() {
@@ -1270,7 +1274,11 @@ function bondHearts(id) {
 }
 function renderHome() {
   $('#streakN').textContent = streak();
-  document.querySelectorAll('#lvRow .lv').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.lv === S.lv)));
+  document.querySelectorAll('#lvRow .lv').forEach(b => {
+    const lv = +b.dataset.lv;
+    b.hidden = !!S.hideEasy && lv === 1;   // [hidden] は display:none
+    b.setAttribute('aria-pressed', String(lv === S.lv));
+  });
   $('#habRow').innerHTML = HABITATS.map(h =>
     `<button class="chip" data-hab="${h.k}" aria-pressed="${S.habitat === h.k}"><span>${h.e}</span><span>${h.n}</span></button>`).join('');
   $('#syncNote').textContent = syncState;
@@ -1655,6 +1663,7 @@ function renderLog() {
 }
 function renderSet() {
   $('#swSound').setAttribute('aria-pressed', String(!!S.sound));
+  $('#swHideEasy').setAttribute('aria-pressed', String(!!S.hideEasy));
   document.querySelectorAll('#lenRow .mini').forEach(b => {
     const on = +b.dataset.len === S.rounds;
     b.style.borderColor = on ? 'var(--accent)' : 'var(--line)';
@@ -1699,6 +1708,11 @@ $('#tileBuddy').addEventListener('click', () => { show('dex'); });
 $('#tileEgg').addEventListener('click', () => SFX.tap());
 $('#tilePieces').addEventListener('click', () => SFX.tap());
 $('#swSound').addEventListener('click', () => { S.sound = !S.sound; save(); renderSet(); if (S.sound) { unlockAudio(); SFX.ok(); } });
+$('#swHideEasy').addEventListener('click', () => {
+  S.hideEasy = !S.hideEasy;
+  if (S.hideEasy && S.lv < 2) S.lv = 2;   // かくした ★が えらばれた ままに ならない ように
+  save(); renderSet(); renderHome(); SFX.tap();
+});
 $('#btnReset').addEventListener('click', () => {
   if (!confirm('きろくを ぜんぶ けしますか？')) return;
   S = blank(); save(); show('home');
@@ -1730,6 +1744,19 @@ const GYMS = [
   { t:'ほのお',   n:'メラメラ かざん',      boss:'ほのおの エン',     hp:235, bs:545 },
   { t:'エスパー', n:'フシギの とう',        boss:'ふしぎの サトリ',   hp:265, bs:580 },
   { t:'ドラゴン', n:'そらの きょてん',      boss:'りゅうの ソラ',     hp:300, bs:620 },
+  // ここから さきは 8つの バッジを とった あと。のこりの タイプ ぜんぶ。
+  { t:'ノーマル',   n:'まんまる ひろば',    boss:'げんきな ノン',     hp:305, bs:560 },
+  { t:'どく',       n:'どくどく ぬま',      boss:'ぬまの ドクミ',     hp:310, bs:565 },
+  { t:'じめん',     n:'すなすな さばく',    boss:'すなの ダイチ',     hp:315, bs:570 },
+  { t:'ひこう',     n:'かぜの とうだい',    boss:'かぜの ツバサ',     hp:320, bs:575 },
+  { t:'かくとう',   n:'ちからの どうじょう', boss:'ちからの ゴウ',     hp:325, bs:580 },
+  { t:'こおり',     n:'こおりの どうくつ',  boss:'こおりの ヒョウ',   hp:330, bs:585 },
+  { t:'ゴースト',   n:'おばけ やしき',      boss:'やみよの ユウ',     hp:335, bs:590 },
+  { t:'あく',       n:'かげの ろじうら',    boss:'かげの クロ',       hp:340, bs:595 },
+  { t:'はがね',     n:'はがねの こうじょう', boss:'はがねの テツ',     hp:345, bs:600 },
+  { t:'フェアリー', n:'ひかりの はなぞの',  boss:'ひかりの ホシ',     hp:355, bs:605 },
+  // さいごの あいて。タイプが そろって いないので あいしょうで ごまかせない。
+  { t:'いろいろ', mix:true, num:4, n:'チャンピオンロード', boss:'チャンピオン アカリ', hp:240, bs:660 },
 ];
 /* かてば かつほど メダルが かわる。50かいまで のびるので なんじゅっかいでも あそべる。 */
 const TIERS = [
@@ -1763,6 +1790,7 @@ function badgeSVG(g, wins) {
     : `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
          <stop offset="0%" stop-color="${t.c}"/><stop offset="100%" stop-color="${t.c2}"/></linearGradient>`;
   const inner = wins ? tcol(g.t) : '#8C9AA2';
+  const letter = g.mix ? 'チ' : g.t[0];
   // ランクが あがると まわりに ほしが ふえる（さいだい 4つ）
   const stars = Math.min(4, Math.max(0, tierIdx(wins) - 3));
   const starPos = [[50,15],[85,50],[50,85],[15,50]];
@@ -1771,7 +1799,7 @@ function badgeSVG(g, wins) {
   return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs>${def}</defs>
     <path d="M50 6 L88 28 L88 72 L50 94 L12 72 L12 28 Z" fill="url(#${id})" stroke="#17232B" stroke-width="6" stroke-linejoin="round"/>
     <circle cx="50" cy="50" r="19" fill="${inner}" stroke="#17232B" stroke-width="4"/>
-    <text x="50" y="58" font-size="20" text-anchor="middle" fill="#FFF" font-family="'Zen Maru Gothic',sans-serif" font-weight="900">${g.t[0]}</text>
+    <text x="50" y="58" font-size="20" text-anchor="middle" fill="#FFF" font-family="'Zen Maru Gothic',sans-serif" font-weight="900">${letter}</text>
     ${starSVG}</svg>`;
 }
 
@@ -1782,7 +1810,7 @@ function foeBand(gi) {
 }
 function rollFoes(gi) {
   const g = GYMS[gi], band = foeBand(gi);
-  const sameType = PK.filter(p => p.t.includes(g.t));
+  const sameType = g.mix ? PK.slice() : PK.filter(p => p.t.includes(g.t));
   // つよさが ちかい ものの なかから えらぶ。たりなければ はばを ひろげる。
   let pool = [];
   // えらべる はばを ひろめに とる。せまいと おなじ ポケモンばかり でて あきる。
@@ -1790,7 +1818,7 @@ function rollFoes(gi) {
     pool = sameType.filter(p => Math.abs(p.bs - band.bs) <= width);
   }
   if (pool.length < 3) pool = sameType.slice().sort((a, b) => Math.abs(a.bs - band.bs) - Math.abs(b.bs - band.bs)).slice(0, 12);
-  return shuffle(pool).slice(0, 3);
+  return shuffle(pool).slice(0, g.num || 3);
 }
 const myMaxHP = p => Math.round(70 + p.bs / 7);
 function calcDmg(atk, def, streak, isMe) {
@@ -1833,7 +1861,7 @@ function renderGym() {
       : `<b style="color:${t.c === 'rainbow' ? 'var(--gold)' : t.c}">${t.n}メダル</b><br><span class="num">${w}</span>かい かった${nx ? `<br>つぎまで あと ${nx.left}` : ''}`;
     return `<button class="gym${clear ? ' clear' : ''}${lock ? ' lock' : ''}"${lock || !owned ? ' disabled' : ` data-gym="${i}"`}>
       <span class="bdg">${badgeSVG(g, w)}</span>
-      <span class="tx"><h4>${g.n}</h4><p>${g.boss}・${g.t}タイプ 3たい${w ? `・あいては まいかい かわる` : ''}</p></span>
+      <span class="tx"><h4>${g.n}</h4><p>${g.boss}・${g.mix ? 'いろんな タイプ' : g.t + 'タイプ'} ${g.num || 3}たい${w ? '・あいては まいかい かわる' : ''}</p></span>
       <span class="st" style="text-align:right;line-height:1.5">${right}</span></button>`;
   }).join('') + `</div>`;
   h += `<div class="hintbox" style="margin:0"><b>メダルは かつたびに ひかる</b>：
@@ -1879,7 +1907,7 @@ function renderTeam() {
   const g = GYMS[teamGi], foes = teamFoes;
   const w = winsOf(teamGi), t = tierOf(w), nx = nextTier(w);
   $('#teamTitle').textContent = g.n;
-  $('#teamHint').innerHTML = `<b>${g.boss}</b>の きょうの ポケモン（<b style="color:${tcol(g.t)}">${g.t}</b>タイプ）<br>`
+  $('#teamHint').innerHTML = `<b>${g.boss}</b>の きょうの ポケモン（${g.mix ? '<b style="color:var(--gold)">いろんな タイプ</b>' : `<b style="color:${tcol(g.t)}">${g.t}</b>タイプ`}）<br>`
     + foes.map(f => `<span style="display:inline-block;text-align:center;width:64px;vertical-align:top;margin:2px 0">
         <span style="display:block;width:44px;height:44px;margin:0 auto">${sprHTML(f)}</span>
         <span style="font-size:9.5px;color:var(--ink3);display:block;line-height:1.2">${esc(f.n)}</span></span>`).join('')
@@ -1925,7 +1953,7 @@ function startBattle() {
       const hp = foeBand(teamGi).hp; return { p, hp, max:hp };
     }),
     mi:0, fi:0, q:null, recent:[], streak:0, asked:0, right:0, kinds:{},
-    locked:false, ended:false, t0:Date.now(),
+    locked:false, ended:false, t0:Date.now(), dealt:0,
   };
   entry = '';
   show('bat');
@@ -1980,7 +2008,7 @@ function batBanner(html, ms, cls) {
 }
 /* タイプが 0ばいの ままだと ダメージが はいらず えいえんに おわらない。
    ながすぎる バトルは うちきって、タイプを かえる ように つたえる。 */
-const BAT_CAP = 60;
+const BAT_CAP = 90;
 function batNextQ() {
   if (!B || B.ended) return;
   if (B.asked >= BAT_CAP) return batEnd(false, true);
@@ -2011,6 +2039,7 @@ function batJudge(val, btn) {
     const me = B.me[B.mi], foe = B.foe[B.fi];
     const { d, m } = calcDmg(me.p, foe.p, B.streak, true);
     foe.hp = Math.max(0, foe.hp - d);
+    B.dealt += d;
     $('#batMePh').classList.add('atk');
     setTimeout(() => {
       batHP();
@@ -2098,9 +2127,13 @@ function batEnd(win, stuck) {
        <div class="sm">${B.right} / ${B.asked} もん せいかい<br>ちずの かけらを ${first ? 2 : 1}まい もらった${
          nx ? `<br>つぎの メダルまで あと ${nx.left}かい` : '<br>メダルは さいこうランク！'}</div>`
     : stuck
-    ? `<div class="art">${sprHTML(B.me[0].p, !!S.shiny[B.me[0].p.i])}</div>
-       <div class="big">ダメージが<br>あたえられない…</div>
-       <div class="sm">${B.right} / ${B.asked} もん せいかい<br>この チームの タイプでは ${B.g.t}タイプに こうげきが きかないみたい。<br>「おまかせ」で えらびなおして みよう！</div>`
+    ? (B.dealt === 0
+      ? `<div class="art">${sprHTML(B.me[0].p, !!S.shiny[B.me[0].p.i])}</div>
+         <div class="big">ダメージが<br>あたえられない…</div>
+         <div class="sm">${B.right} / ${B.asked} もん せいかい<br>この チームの タイプでは こうげきが きかないみたい。<br>「おまかせ」で えらびなおして みよう！</div>`
+      : `<div class="art">${sprHTML(B.me[0].p, !!S.shiny[B.me[0].p.i])}</div>
+         <div class="big">じかんぎれ…</div>
+         <div class="sm">${B.right} / ${B.asked} もん せいかい<br>あと すこしだった！ もっと あいしょうの いい ポケモンや、<br>つよい ポケモンを えらぶと はやく たおせるよ。</div>`)
     : `<div class="art">${sprHTML(B.me[0].p, !!S.shiny[B.me[0].p.i])}</div>
        <div class="big">まけちゃった…</div>
        <div class="sm">${B.right} / ${B.asked} もん せいかい<br>タイプを かえて もういちど ちょうせんしよう！</div>`;
