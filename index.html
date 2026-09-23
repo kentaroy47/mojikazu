@@ -422,6 +422,31 @@ img.spr{width:100%;height:100%;object-fit:contain;display:block;image-rendering:
 .dmgpop.show{animation:dmgup .9s ease-out}
 @keyframes dmgup{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}25%{opacity:1;transform:translate(-50%,-6px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-30px) scale(1)}}
 .eff{text-align:center;font-size:14px;font-weight:900;min-height:21px;color:var(--accent);padding:1px 16px}
+/* ---------- 1ぷん タイムアタック ---------- */
+.ta-entry{border-color:var(--accent)!important}
+.ta-entry .ic{display:grid;place-items:center;font-size:34px}
+.ta-top{padding:10px 18px 2px}
+.ta-row{display:flex;align-items:baseline;gap:10px}
+.ta-row .sc{font-size:clamp(38px,11vw,58px);font-weight:700;line-height:1}
+.ta-row .lbl{font-size:12px;color:var(--ink3)}
+.ta-row .tm{margin-left:auto;font-size:clamp(26px,7vw,38px);font-weight:700;line-height:1}
+.ta-row .tm.hurry{color:var(--bad);animation:pulse .5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+.ta-bar{height:14px;border-radius:99px;background:var(--sunk);border:2px solid var(--line2);overflow:hidden;margin-top:7px}
+.ta-bar i{display:block;height:100%;background:var(--good);border-radius:99px}
+.ta-bar i.mid{background:var(--gold)}
+.ta-bar i.low{background:var(--bad)}
+.ta-meta{display:flex;gap:12px;margin-top:5px;font-size:11.5px;color:var(--ink3)}
+/* タイムアタックは しせんの いどうが そのまま はやさに ひびく。
+   もんだいを こたえボタンの ちかくに よせる。 */
+#s-ta .qbox{justify-content:flex-end;padding-bottom:12px}
+.ta-res{text-align:center;display:flex;flex-direction:column;align-items:center;gap:9px}
+.ta-res .big{font-size:clamp(46px,14vw,76px);font-weight:700;line-height:1;color:var(--accent)}
+.ta-res .bestline{font-size:14px;color:var(--ink2);font-weight:500}
+.ta-best{display:flex;flex-direction:column;gap:7px;width:100%;max-width:340px;margin-top:4px}
+.ta-best .r{display:flex;align-items:center;gap:9px;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px}
+.ta-best .r .v{margin-left:auto;font-size:17px;font-weight:700}
+.ta-best .r.now{border-color:var(--accent)}
 .swbtn{
   flex:none;align-self:center;background:var(--surface);border:3px solid var(--line);border-radius:999px;
   padding:8px 13px;font-size:12.5px;font-weight:900;box-shadow:var(--shadow);white-space:nowrap;
@@ -522,6 +547,13 @@ img.spr{width:100%;height:100%;object-fit:contain;display:block;image-rendering:
         <button class="lv" data-lv="3"><span class="st">★★★</span><span class="nm">つよい</span></button>
       </div>
 
+      <div class="section-label">みじかく あそぶ</div>
+      <button class="area ta-entry" data-ta="1">
+        <span class="glow" style="background:var(--accent)"></span>
+        <span class="ic">⏱️</span>
+        <span class="tx"><h3>1ぷん タイムアタック</h3><p id="taHomeSub">60びょうで なんもん とけるかな？</p></span>
+      </button>
+
       <div class="section-label">ジムに ちょうせん</div>
       <button class="area" data-scr="gym" id="gymEntry"></button>
 
@@ -590,6 +622,7 @@ img.spr{width:100%;height:100%;object-fit:contain;display:block;image-rendering:
       <div class="set-list">
         <div class="set"><div class="lb">おと<small>せいかいの おとが なる</small></div><button class="sw" id="swSound" aria-pressed="true" aria-label="おと"></button></div>
         <div class="set"><div class="lb">やさしい（★）を かくす<small>かんたん すぎる ときは ★★から えらべるように</small></div><button class="sw" id="swHideEasy" aria-pressed="false" aria-label="やさしいを かくす"></button></div>
+        <div class="set"><div class="lb">じつりょくに あわせる<small>にがてな もんだいを おおく、とくいな もんだいを すくなく だす</small></div><button class="sw" id="swAdapt" aria-pressed="true" aria-label="じつりょくに あわせる"></button></div>
         <div class="set"><div class="lb">1かいで であう かず<small>1たいに つき せいかい 5かい</small></div>
           <div style="display:flex;gap:6px" id="lenRow">
             <button class="mini" style="min-width:52px;padding:9px 4px" data-len="3">3たい</button>
@@ -610,6 +643,26 @@ img.spr{width:100%;height:100%;object-fit:contain;display:block;image-rendering:
       </div>
       <button class="cta ghost" id="btnReset" style="flex:none;min-height:52px;font-size:15px;color:var(--bad)">きろくを ぜんぶ けす</button>
     </div>
+  </section>
+
+  <!-- 1ぷん タイムアタック -->
+  <section class="screen" id="s-ta">
+    <div class="play-top">
+      <button class="icon-btn" id="btnTaQuit" aria-label="やめる">✕</button>
+      <div class="pips" style="justify-content:center;font-size:12px;color:var(--ink3)" id="taTitle"></div>
+    </div>
+    <div class="ta-top">
+      <div class="ta-row">
+        <span class="sc num" id="taScore">0</span><span class="lbl">もん</span>
+        <span class="tm num" id="taTime">60.0</span>
+      </div>
+      <div class="ta-bar"><i id="taBar" style="width:100%"></i></div>
+      <div class="ta-meta"><span id="taStreak"></span><span id="taBest"></span></div>
+    </div>
+    <div class="qbox" id="taQbox"></div>
+    <div class="answers" id="taAnswers"></div>
+    <div class="toast" id="taToast"></div>
+    <div class="banner" id="taBanner" hidden></div>
   </section>
 
   <!-- ジム いちらん -->
@@ -1177,11 +1230,48 @@ const POOL = {
 };
 const poolFor = (area, lv) => area === 'mix' ? [...POOL.sansu[lv], ...POOL.kokugo[lv]] : POOL[area][lv];
 
+/* ---- じつりょくに あわせる ----
+   これまでは 38しゅるいを まったくの ランダムで だして いた。
+   たしざんが 98% でも くりさがりが 60% でも おなじ かいすう でて いたので、
+   「もう できる もんだい」ばかりを ときつづける ことに なって いた。
+   S.kinds（ぜんきかんの せいかいりつ）を つかって、
+   にがてな しゅるいを あつく、とくいな しゅるいを うすく だす。  */
+const MASTER = 0.95, GOOD = 0.85, OK = 0.70;
+function kindWeight(k) {
+  if (!S.adapt) return 1;
+  const v = S.kinds[k];
+  if (!v || v.a < 6) return 2.5;          // まだ データが すくない → すこし おおめに ためす
+  const acc = v.c / v.a;
+  if (acc >= MASTER) return 0.6;          // かんぺき → わすれない ていどに たまに
+  if (acc >= GOOD) return 1.4;
+  if (acc >= OK) return 2.5;
+  return 4;                                // にがて → おおく だす
+}
+function pickKind(pool) {
+  const w = pool.map(kindWeight);
+  let r = Math.random() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) return pool[i]; }
+  return pool[pool.length - 1];
+}
+/* しゅるい ごとに ±1 だけ レベルを ずらす。
+   ジェネレータは もともと lv を うけとるので、つくり かえずに すむ。 */
+function lvFor(k, lv) {
+  if (!S.adapt) return lv;
+  const v = S.kinds[k];
+  if (!v || v.a < 8) return lv;
+  const acc = v.c / v.a;
+  if (acc >= 0.92) return Math.min(3, lv + 1);
+  if (acc < 0.65) return Math.max(1, lv - 1);
+  return lv;
+}
+
 function makeQ(area, lv, recent) {
+  const pool = poolFor(area, lv);
   for (let i = 0; i < 30; i++) {
-    const k = pick(poolFor(area, lv));
-    if (recent.length >= 2 && recent[recent.length - 1] === k && recent[recent.length - 2] === k) continue;
-    const q = G[k](lv);
+    const k = pickKind(pool);
+    // おなじ しゅるいが つづくのを さける（おもみを つけた ぶん でやすく なる ため）
+    if (i < 20 && recent.length && recent[recent.length - 1] === k) continue;
+    const q = G[k](lvFor(k, lv));
     if (q.kind === 'shiri') q.answer = q.choices.find(c => c[0] === q._ans);
     if (q.mode === 'choice') { q.choices = uniq(q.choices); if (q.choices.length < 2 || q.answer == null) continue; }
     if (q.mode === 'pad' && (q.answer == null || q.answer < 0)) continue;
@@ -1198,7 +1288,7 @@ const LS_KEY = 'mojikazu.poke.v1';
 const blank = () => ({ v:3, updatedAt:0, lv:1, area:'mix', habitat:'any',
   mons:{}, chain:{}, shiny:{}, days:[], runs:[], kinds:{},
   buddy:null, bond:{}, egg:{ step:0, got:0 }, pieces:0, badges:[], team:[], gymWins:{},
-  sound:true, rounds:4, hideEasy:false });
+  sound:true, rounds:4, hideEasy:false, adapt:true, best:{} });
 let S = blank();
 let dbDoc = null, syncState = '';
 
@@ -1214,6 +1304,8 @@ function load() {
   // むかしの セーブは バッジ＝1かい かった あつかいに する
   S.badges.forEach(i => { if (!S.gymWins[i]) S.gymWins[i] = 1; });
   if (S.hideEasy && S.lv < 2) S.lv = 2;
+  if (typeof S.adapt !== 'boolean') S.adapt = true;
+  if (!S.best || typeof S.best !== 'object') S.best = {};
 }
 let pushT = null;
 function save() {
@@ -1302,7 +1394,7 @@ const unlockAudio = () => ac();
 /* ---------------------------------------------------------
    5. がめん
    --------------------------------------------------------- */
-const SCREENS = ['home','play','res','dex','log','set','gym','team','bat'];
+const SCREENS = ['home','play','res','dex','log','set','gym','team','bat','ta'];
 function show(id) {
   SCREENS.forEach(s => $('#s-' + s).classList.toggle('on', s === id));
   if (id === 'dex') renderDex();
@@ -1338,6 +1430,8 @@ function renderHome() {
 
   const eg = S.egg.step;
   $('#tileEgg').innerHTML = `<span class="cap">たまご</span><div class="ph">${eggSVG(eg)}</div><div class="val">${eg >= 2 ? 'もう すぐ！' : `あと ${3 - eg}かい`}</div>`;
+  const tb = taBest();
+  $('#taHomeSub').textContent = tb ? `${AREA_NAME[S.area]}・${'★'.repeat(S.lv)} の じこベストは ${tb}もん` : '60びょうで なんもん とけるかな？';
   renderGymEntry();
   $('#tilePieces').innerHTML = `<span class="cap">ちずの かけら</span><div class="ph">${MAP_SVG}</div>`
     + `<div class="slots">${[0,1,2,3,4].map(i => `<span class="slot${i < S.pieces ? ' on' : ''}"></span>`).join('')}</div>`
@@ -1584,7 +1678,7 @@ function quitRun() {
 /* ---------------------------------------------------------
    7. けっか
    --------------------------------------------------------- */
-const AREA_NAME = { kokugo:'ことばの もり', sansu:'かずの みずうみ', mix:'まざりの どうくつ' };
+const AREA_NAME = { kokugo:'ことばの もり', sansu:'かずの みずうみ', mix:'まざりの どうくつ', gym:'ジム', ta:'タイムアタック' };
 const kindRow = ([k, v]) => { const p = Math.round(v.c / v.a * 100);
   return `<li><span class="kn">${KIND[k] || k}</span><span class="bar"><i class="${p < 70 ? 'low' : ''}" style="width:${p}%"></i></span><span class="pc num">${p}%</span></li>`; };
 function renderResult(secs) {
@@ -1708,6 +1802,7 @@ function renderLog() {
 function renderSet() {
   $('#swSound').setAttribute('aria-pressed', String(!!S.sound));
   $('#swHideEasy').setAttribute('aria-pressed', String(!!S.hideEasy));
+  $('#swAdapt').setAttribute('aria-pressed', String(!!S.adapt));
   document.querySelectorAll('#lenRow .mini').forEach(b => {
     const on = +b.dataset.len === S.rounds;
     b.style.borderColor = on ? 'var(--accent)' : 'var(--line)';
@@ -1719,7 +1814,7 @@ function renderSet() {
    10. イベント
    --------------------------------------------------------- */
 document.addEventListener('click', ev => {
-  const t = ev.target.closest('[data-scr],[data-go],[data-lv],[data-c],[data-d],[data-len],[data-hab],[data-gen],[data-mon],[data-close],[data-buddy],[data-cry],[data-gym],[data-pick],[data-swopen],[data-swclose],[data-swpick]');
+  const t = ev.target.closest('[data-scr],[data-go],[data-lv],[data-c],[data-d],[data-len],[data-hab],[data-gen],[data-mon],[data-close],[data-buddy],[data-cry],[data-gym],[data-pick],[data-swopen],[data-swclose],[data-swpick],[data-ta]');
   if (!t) {
     if (ev.target.id === 'sheet') $('#sheet').hidden = true;
     return;
@@ -1745,9 +1840,11 @@ document.addEventListener('click', ev => {
   if (t.dataset.swopen) { if (B && !B.ended && !B.locked) openSwitch(false); return; }
   if (t.dataset.swclose) { closeSwitch(); B.locked = false; return; }
   if (t.dataset.swpick !== undefined) { pickSwitch(+t.dataset.swpick); return; }
+  if (t.dataset.ta) { startTA(); return; }
 });
 $('#btnQuit').addEventListener('click', quitRun);
 $('#btnBatQuit').addEventListener('click', quitBattle);
+$('#btnTaQuit').addEventListener('click', quitTA);
 $('#btnGo').addEventListener('click', startBattle);
 $('#btnAuto').addEventListener('click', () => { teamSel = autoPick(teamGi); SFX.ok(); renderTeam(); });
 $('#btnAgain').addEventListener('click', () => startRun(S.area));
@@ -1755,9 +1852,12 @@ $('#tileBuddy').addEventListener('click', () => { show('dex'); });
 $('#tileEgg').addEventListener('click', () => SFX.tap());
 $('#tilePieces').addEventListener('click', () => SFX.tap());
 $('#swSound').addEventListener('click', () => { S.sound = !S.sound; save(); renderSet(); if (S.sound) { unlockAudio(); SFX.ok(); } });
+$('#swAdapt').addEventListener('click', () => { S.adapt = !S.adapt; save(); renderSet(); SFX.tap(); });
 $('#swHideEasy').addEventListener('click', () => {
   S.hideEasy = !S.hideEasy;
-  if (S.hideEasy && S.lv < 2) S.lv = 2;   // かくした ★が えらばれた ままに ならない ように
+  if (S.hideEasy && S.lv < 2) S.lv = 2;
+  if (typeof S.adapt !== 'boolean') S.adapt = true;
+  if (!S.best || typeof S.best !== 'object') S.best = {};   // かくした ★が えらばれた ままに ならない ように
   save(); renderSet(); renderHome(); SFX.tap();
 });
 $('#btnReset').addEventListener('click', () => {
@@ -2267,7 +2367,127 @@ function quitBattle() {
 }
 
 /* ---------------------------------------------------------
-   12. スタート
+   12. 1ぷん タイムアタック
+   ---------------------------------------------------------
+   たんけんも ジムも 15〜25ふん かかる。みじかく あそべる かたちが
+   ひとつも なかったので、60びょうで なんもん とけるかを きそう。
+   じこベストを こえる ことが そのまま つぎの もくひょうに なる。 */
+const TA_SEC = 60, TA_PENALTY = 3000;
+let TA = null, taT = null;
+const TA_CTX = { qbox:'#taQbox', ans:'#taAnswers', entry:'taEntry', toast:'#taToast',
+                 locked: () => !TA || TA.locked, judge: (v, b) => taJudge(v, b) };
+const taKey = () => `${S.area}-${S.lv}`;
+const taBest = () => (S.best && S.best[taKey()]) || 0;
+
+function startTA() {
+  unlockAudio();
+  TA = { end: Date.now() + TA_SEC * 1000, score:0, asked:0, streak:0, maxStreak:0,
+         recent:[], kinds:{}, locked:false, ended:false, startBest: taBest() };
+  entry = '';
+  show('ta');
+  $('#taTitle').textContent = `${AREA_NAME[S.area]}・${'★'.repeat(S.lv)}`;
+  $('#taScore').textContent = '0';
+  $('#taBest').textContent = TA.startBest ? `じこベスト ${TA.startBest}もん` : 'はじめての きろく！';
+  $('#taStreak').textContent = '';
+  clearInterval(taT);
+  taTick();
+  taT = setInterval(taTick, 100);
+  taNextQ();
+}
+function taTick() {
+  if (!TA || TA.ended) return;
+  const left = Math.max(0, TA.end - Date.now());
+  const pct = left / (TA_SEC * 1000) * 100;
+  const bar = $('#taBar');
+  bar.style.width = pct + '%';
+  bar.className = pct <= 20 ? 'low' : pct <= 50 ? 'mid' : '';
+  const tm = $('#taTime');
+  tm.textContent = (left / 1000).toFixed(1);
+  tm.className = 'tm num' + (left <= 10000 ? ' hurry' : '');
+  if (left <= 0) taEnd();
+}
+function taNextQ() {
+  if (!TA || TA.ended) return;
+  const q = makeQ(S.area, S.lv, TA.recent);
+  TA.q = q; TA.recent.push(q.kind); if (TA.recent.length > 4) TA.recent.shift();
+  TA.locked = false; entry = '';
+  renderQ(q, TA_CTX);
+}
+function taJudge(val, btn) {
+  if (!TA || TA.locked || TA.ended) return;
+  TA.locked = true;
+  const q = TA.q, k = q.kind;
+  const correct = String(val) === String(q.answer);
+  TA.asked++;
+  TA.kinds[k] = TA.kinds[k] || { a:0, c:0 }; TA.kinds[k].a++;
+  S.kinds[k] = S.kinds[k] || { a:0, c:0 }; S.kinds[k].a++;
+  entry = '';
+
+  if (correct) {
+    TA.score++; TA.streak++; TA.maxStreak = Math.max(TA.maxStreak, TA.streak);
+    TA.kinds[k].c++; S.kinds[k].c++;
+    SFX.ok();
+    $('#taScore').textContent = TA.score;
+    $('#taStreak').textContent = TA.streak >= 3 ? `${TA.streak}れんぞく！` : '';
+    if (btn) btn.classList.add('ok'); else { const e = $('#taEntry'); if (e) e.classList.add('ok'); }
+    if (TA.score === TA.startBest + 1 && TA.startBest > 0) toast('じこベスト こえた！', true, '#taToast');
+    setTimeout(taNextQ, 260);
+  } else {
+    TA.streak = 0;
+    SFX.ng();
+    // てきとうに れんだして かせげない ように、まちがえたら 3びょう へる
+    TA.end -= TA_PENALTY;
+    toast('-3びょう', false, '#taToast');
+    $('#taStreak').textContent = '';
+    if (btn) {
+      btn.classList.add('ng');
+      document.querySelectorAll('#taAnswers .ans').forEach(b => {
+        if (b.dataset.c === String(q.answer)) b.classList.add('ok'); else if (b !== btn) b.classList.add('dim');
+      });
+    } else { const e = $('#taEntry'); if (e) { e.classList.add('ng'); setTimeout(() => { e.textContent = String(q.answer); }, 300); } }
+    setTimeout(taNextQ, 950);
+  }
+  save();
+}
+function taEnd() {
+  if (!TA || TA.ended) return;
+  TA.ended = true; clearInterval(taT);
+  $('#taTime').textContent = '0.0';
+  $('#taBar').style.width = '0%';
+  const key = taKey(), prev = TA.startBest, isBest = TA.score > prev;
+  if (isBest) S.best[key] = TA.score;
+  if (TA.asked > 0) {
+    const d = today();
+    if (!S.days.includes(d)) S.days.push(d);
+    S.days = S.days.slice(-400);
+    S.runs.push({ d, area:'ta', lv:S.lv, asked:TA.asked, right:TA.score, secs:TA_SEC });
+    S.runs = S.runs.slice(-60);
+  }
+  save();
+  isBest ? SFX.evo() : SFX.done();
+  const rows = Object.entries(S.best || {}).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([kk, v]) => {
+    const [ar, lv] = kk.split('-');
+    return `<div class="r${kk === key ? ' now' : ''}"><span>${AREA_NAME[ar] || ar}</span><span style="color:var(--gold)">${'★'.repeat(+lv)}</span><span class="v num">${v}</span></div>`;
+  }).join('');
+  $('#taBanner').className = 'banner';
+  $('#taBanner').innerHTML = `<div class="ta-res">
+    ${isBest ? '<div class="newtag">じこベスト こうしん！</div>' : ''}
+    <div class="big num">${TA.score}<span style="font-size:22px;color:var(--ink2)">もん</span></div>
+    <div class="bestline">${TA.asked ? Math.round(TA.score / TA.asked * 100) : 0}% せいかい・さいこう ${TA.maxStreak}れんぞく<br>
+      ${isBest ? (prev ? `まえの きろく ${prev}もん` : 'はじめての きろく！') : `じこベスト ${prev}もん（あと ${prev - TA.score + 1}もん！）`}</div>
+    <div class="ta-best">${rows}</div>
+    <div class="sm" style="margin-top:4px">がめんを タップで もどる</div></div>`;
+  $('#taBanner').hidden = false;
+  $('#taBanner').onclick = () => { $('#taBanner').hidden = true; $('#taBanner').onclick = null; show('home'); };
+}
+function quitTA() {
+  if (!TA || TA.ended) { show('home'); return; }
+  if (TA.asked === 0) { TA.ended = true; clearInterval(taT); show('home'); return; }
+  TA.end = Date.now(); taEnd();
+}
+
+/* ---------------------------------------------------------
+   13. スタート
    --------------------------------------------------------- */
 load();
 renderHome();
