@@ -422,6 +422,29 @@ img.spr{width:100%;height:100%;object-fit:contain;display:block;image-rendering:
 .dmgpop.show{animation:dmgup .9s ease-out}
 @keyframes dmgup{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}25%{opacity:1;transform:translate(-50%,-6px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-30px) scale(1)}}
 .eff{text-align:center;font-size:14px;font-weight:900;min-height:21px;color:var(--accent);padding:1px 16px}
+.swbtn{
+  flex:none;align-self:center;background:var(--surface);border:3px solid var(--line);border-radius:999px;
+  padding:8px 13px;font-size:12.5px;font-weight:900;box-shadow:var(--shadow);white-space:nowrap;
+}
+.swbtn:active{transform:translateY(2px);box-shadow:none}
+.swbtn[disabled]{opacity:.4}
+.swpane{position:absolute;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;padding:16px;background:#0009;backdrop-filter:blur(3px)}
+.swpane .card{background:var(--bg);border:4px solid var(--line2);border-radius:var(--r-l);width:100%;max-width:400px;max-height:100%;overflow-y:auto;padding:15px;box-shadow:0 14px 40px #0005;animation:appear .24s cubic-bezier(.2,1.4,.5,1)}
+.swpane .ttl{font-size:18px;font-weight:900;text-align:center}
+.swpane .note{font-size:12px;color:var(--ink2);text-align:center;margin-top:4px;font-weight:500;line-height:1.6}
+.swpane .list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.swc{display:flex;align-items:center;gap:10px;background:var(--surface);border:3px solid var(--line);border-radius:var(--r-m);padding:8px 11px;box-shadow:var(--shadow);text-align:left;width:100%}
+.swc:active{transform:translateY(2px);box-shadow:none}
+.swc .ph{width:50px;height:50px;flex:none}
+.swc .tx{flex:1;min-width:0}
+.swc .n{font-size:14px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.swc .hp{font-size:10.5px;color:var(--ink3);margin-top:2px}
+.swc .hpbar{height:8px;margin-top:3px}
+.swc .mt{font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:99px;flex:none}
+.swc .mt.up{background:var(--good);color:#fff}
+.swc .mt.dn{background:var(--sunk);color:var(--ink3)}
+.swc .mt.no{background:var(--bad);color:#fff}
+.swpane .cancel{width:100%;min-height:48px;border-radius:var(--r-m);background:var(--surface);border:3px solid var(--line);font-size:15px;font-weight:900;box-shadow:var(--shadow)}
 .eff.good{color:var(--good)}
 .eff.bad{color:var(--ink3)}
 
@@ -627,6 +650,7 @@ img.spr{width:100%;height:100%;object-fit:contain;display:block;image-rendering:
     <div class="qbox" id="batQbox"></div>
     <div class="answers" id="batAnswers"></div>
     <div class="toast" id="batToast"></div>
+    <div class="swpane" id="swPane" hidden></div>
     <div class="banner" id="batBanner" hidden></div>
   </section>
 </div>
@@ -1695,7 +1719,7 @@ function renderSet() {
    10. イベント
    --------------------------------------------------------- */
 document.addEventListener('click', ev => {
-  const t = ev.target.closest('[data-scr],[data-go],[data-lv],[data-c],[data-d],[data-len],[data-hab],[data-gen],[data-mon],[data-close],[data-buddy],[data-cry],[data-gym],[data-pick]');
+  const t = ev.target.closest('[data-scr],[data-go],[data-lv],[data-c],[data-d],[data-len],[data-hab],[data-gen],[data-mon],[data-close],[data-buddy],[data-cry],[data-gym],[data-pick],[data-swopen],[data-swclose],[data-swpick]');
   if (!t) {
     if (ev.target.id === 'sheet') $('#sheet').hidden = true;
     return;
@@ -1718,6 +1742,9 @@ document.addEventListener('click', ev => {
   if (t.dataset.c !== undefined) { if (QCTX) QCTX.judge(t.dataset.c, t); return; }
   if (t.dataset.gym !== undefined) { unlockAudio(); openTeam(+t.dataset.gym); return; }
   if (t.dataset.pick !== undefined) { togglePick(+t.dataset.pick); return; }
+  if (t.dataset.swopen) { if (B && !B.ended && !B.locked) openSwitch(false); return; }
+  if (t.dataset.swclose) { closeSwitch(); B.locked = false; return; }
+  if (t.dataset.swpick !== undefined) { pickSwitch(+t.dataset.swpick); return; }
 });
 $('#btnQuit').addEventListener('click', quitRun);
 $('#btnBatQuit').addEventListener('click', quitBattle);
@@ -1977,6 +2004,7 @@ function startBattle() {
   };
   entry = '';
   show('bat');
+  closeSwitch();
   clearInterval(batT);
   batT = setInterval(() => {
     if (!B || B.ended) return;
@@ -1999,7 +2027,13 @@ function sideHTML(u, isMe) {
     <div class="bat-info"><div class="nm">${esc(u.p.n)} ${u.p.t.map(t => `<span class="tchip" style="background:${tcol(t)}">${t}</span>`).join('')}</div>
       <div class="hpbar"><i class="${hpCls(u.hp, u.max)}" style="width:${pct}%"></i></div>
       <div class="hpnum">${Math.max(0, u.hp)} / ${u.max}</div>
-      <div class="party">${party.map((x, i) => `<span class="${x.hp <= 0 ? 'out' : ''}"></span>`).join('')}</div></div>`;
+      <div class="party">${party.map(x => `<span class="${x.hp <= 0 ? 'out' : ''}"></span>`).join('')}</div></div>`
+    + (isMe && benchList().length ? `<button class="swbtn" data-swopen="1">🔄<br>こうたい</button>` : '');
+}
+/* いま だせる なかま（ひんし で なく、いま だして いない こ） */
+function benchList() {
+  if (!B) return [];
+  return B.me.map((u, i) => ({ u, i })).filter(x => x.u.hp > 0 && x.i !== B.mi);
 }
 function batDraw() {
   $('#batFoe').innerHTML = sideHTML(B.foe[B.fi], false);
@@ -2026,6 +2060,78 @@ function batBanner(html, ms, cls) {
     setTimeout(() => { b.hidden = true; res(); }, ms);
   });
 }
+/* ---- ポケモンの こうたい ----
+   じぶんから こうたいすると あいての こうげきを 1かい うける（ほんけと おなじ）。
+   ひんし の ときは つぎを えらぶ だけで こうげきは うけない。 */
+function openSwitch(forced) {
+  const bench = benchList();
+  if (!bench.length) return;
+  B.locked = true;
+  const foe = B.foe[B.fi];
+  const pane = $('#swPane');
+  pane.innerHTML = `<div class="card">
+    <div class="ttl">${forced ? 'つぎは だれが いく？' : 'だれと こうたいする？'}</div>
+    <div class="note">${forced ? 'たおれて しまった…' : 'こうたいすると <b>あいての こうげきを 1かい うける</b>よ'}</div>
+    <div class="list">${bench.map(({ u, i }) => {
+      const m = bestMult(u.p, foe.p);
+      const tag = m === 0 ? '<span class="mt no">きかない</span>'
+                : m >= 2 ? '<span class="mt up">ばつぐん</span>'
+                : m <= 0.5 ? '<span class="mt dn">いまひとつ</span>' : '';
+      const pct = Math.round(u.hp / u.max * 100);
+      return `<button class="swc" data-swpick="${i}">
+        <span class="ph">${sprHTML(u.p, !!S.shiny[u.p.i])}</span>
+        <span class="tx"><span class="n">${esc(u.p.n)} ${u.p.t.map(t => `<span class="tchip" style="background:${tcol(t)}">${t}</span>`).join('')}</span>
+          <span class="hpbar" style="display:block"><i class="${hpCls(u.hp, u.max)}" style="width:${pct}%"></i></span>
+          <span class="hp">HP ${u.hp} / ${u.max}</span></span>
+        ${tag}</button>`;
+    }).join('')}</div>
+    ${forced ? '' : '<button class="cancel" data-swclose="1">やめる</button>'}</div>`;
+  pane.hidden = false;
+}
+function closeSwitch() { $('#swPane').hidden = true; }
+function pickSwitch(i) {
+  const forced = B.me[B.mi].hp <= 0;
+  closeSwitch();
+  const old = B.me[B.mi].p.n;
+  B.mi = i;
+  batDraw();
+  $('#batEff').className = 'eff';
+  $('#batEff').textContent = `${B.me[i].p.n}に こうたい！`;
+  SFX.tap();
+  if (forced) { setTimeout(batNextQ, 700); return; }
+  // こうたいの すきに 1かい こうげきされる
+  const me = B.me[B.mi], foe = B.foe[B.fi];
+  const { d, m } = calcDmg(foe.p, me.p, 0, false);
+  me.hp = Math.max(0, me.hp - d);
+  setTimeout(() => {
+    const fp = $('#batFoePh'); if (fp) fp.classList.add('atk');
+    setTimeout(() => {
+      batHP();
+      const ph = $('#batMePh'); if (ph) ph.classList.add('hurt');
+      popDmg('#batMeDmg', '-' + d);
+      $('#batEff').className = 'eff ' + effCls(m);
+      $('#batEff').textContent = `${foe.p.n}の こうげき！ ${effMsg(m)}`;
+    }, 260);
+    setTimeout(() => {
+      if (me.hp <= 0) {
+        const ph = $('#batMePh'); if (ph) ph.classList.add('ko');
+        setTimeout(() => afterFaint(), 620);
+      } else batNextQ();
+    }, 1200);
+  }, 700);
+}
+/* じぶんの ポケモンが たおれた とき */
+function afterFaint() {
+  const alive = B.me.filter(u => u.hp > 0);
+  if (!alive.length) return batEnd(false);
+  if (alive.length === 1 || benchList().length === 1) {
+    B.mi = B.me.findIndex(u => u.hp > 0);
+    batDraw(); $('#batEff').textContent = '';
+    return batBanner(`<div class="art">${sprHTML(B.me[B.mi].p, !!S.shiny[B.me[B.mi].p.i])}</div><div class="big">がんばれ<br>${B.me[B.mi].p.n}！</div>`, 1500).then(batNextQ);
+  }
+  openSwitch(true);
+}
+
 /* タイプが 0ばいの ままだと ダメージが はいらず えいえんに おわらない。
    ながすぎる バトルは うちきって、タイプを かえる ように つたえる。 */
 const BAT_CAP = 90;
@@ -2104,12 +2210,7 @@ function batJudge(val, btn) {
     setTimeout(() => {
       if (me.hp <= 0) {
         $('#batMePh') && $('#batMePh').classList.add('ko');
-        setTimeout(() => {
-          B.mi++;
-          if (B.mi >= B.me.length) return batEnd(false);
-          batDraw(); $('#batEff').textContent = '';
-          batBanner(`<div class="art">${sprHTML(B.me[B.mi].p, !!S.shiny[B.me[B.mi].p.i])}</div><div class="big">がんばれ<br>${B.me[B.mi].p.n}！</div>`, 1500).then(batNextQ);
-        }, 620);
+        setTimeout(afterFaint, 620);
       } else setTimeout(batNextQ, 1300);
     }, 1000);
   }
